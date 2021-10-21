@@ -2,9 +2,10 @@ import random
 import gensim.downloader as api
 from blessings import Terminal
 
+print("Loading model...")
+model = api.load("word2vec-google-news-300")
+
 def main(seed_word):
-    # print("Loading model...")
-    # model = api.load("glove-twitter-25")
     term = Terminal()
     curr_word = seed_word
     used_words = [curr_word]
