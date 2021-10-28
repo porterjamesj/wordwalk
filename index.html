@@ -1,0 +1,27 @@
+<ul>
+  <li></li>
+  <li></li>
+  <li></li>
+  <li></li>
+  <li></li>
+</ul>
+<form>
+  <input type="text"/>
+</form>
+
+
+<script>
+ function getSimilarWords(e) {
+   e.preventDefault()
+
+   let socket = new WebSocket("ws://localhost:8765")
+
+   socket.onmessage = (event) => {
+     console.log(`[message] Data received from server: ${event.data}`);
+   }
+
+   socket.onopen = () => socket.send(document.querySelector("input").value)
+ }
+
+ document.querySelector("form").onsubmit = getSimilarWords
+</script>
