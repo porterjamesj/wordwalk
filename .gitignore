@@ -1,2 +1,3 @@
+.node_modules/
 .venv/
 lexvec.enwiki+newscrawl.300d.W.pos.vectors

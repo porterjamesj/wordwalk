@@ -1,27 +1,45 @@
-<ul>
-  <li></li>
-  <li></li>
-  <li></li>
-  <li></li>
-  <li></li>
-</ul>
-<form>
-  <input type="text"/>
-</form>
+<script type="module">
+ import { html, render, useState } from 'https://unpkg.com/htm/preact/standalone.module.js'
 
-
-<script>
- function getSimilarWords(e) {
-   e.preventDefault()
-
-   let socket = new WebSocket("ws://localhost:8765")
-
-   socket.onmessage = (event) => {
-     console.log(`[message] Data received from server: ${event.data}`);
-   }
-
-   socket.onopen = () => socket.send(document.querySelector("input").value)
+ function WordStack(props) {
+   return html`<div>${props.word}</div>`
  }
 
- document.querySelector("form").onsubmit = getSimilarWords
+ function WordInput(props) {
+   const [word, setWord] = useState("")
+
+   function onSubmit(e) {
+     e.preventDefault()
+     props.onSubmit(word)
+   }
+
+   return html`
+     <form onSubmit=${onSubmit}>
+       <input type="text" value=${word} onInput=${(e) => setWord(e.target.value)}/>
+     </form>
+   `
+ }
+
+ function App(props) {
+   const [word, setWord] = useState("")
+
+   function streamSimilarWords(word) {
+     let socket = new WebSocket("ws://localhost:8765")
+
+     socket.onmessage = (event) => {
+       console.log(`[message] Data received from server: ${event.data}`)
+       setWord(event.data)
+     }
+
+     socket.onopen = () => socket.send(word)
+   }
+
+   return html`
+     <${WordStack} word=${word}/>
+     <${WordInput} onSubmit=${streamSimilarWords}/>
+   `
+ }
+
+ render(html`<${App} />`, document.body)
+
 </script>
