@@ -2,7 +2,7 @@
  import { html, render, useState } from 'https://unpkg.com/htm/preact/standalone.module.js'
 
  function WordStack(props) {
-   return html`<div>${props.word}</div>`
+   return html`<ul>${props.words.map((word) => html`<li>${word}</li>`)}</ul>`
  }
 
  function WordInput(props) {
@@ -20,22 +20,29 @@
    `
  }
 
+
  function App(props) {
-   const [word, setWord] = useState("")
+   const [words, setWords] = useState([])
 
    function streamSimilarWords(word) {
      let socket = new WebSocket("ws://localhost:8765")
 
      socket.onmessage = (event) => {
+       console.log("Words:", words)
        console.log(`[message] Data received from server: ${event.data}`)
-       setWord(event.data)
+       const newWords = words.concat([event.data])
+       // if (newWords.length > 5) {
+       //   newWords.shift()
+       // }
+       console.log("Setting words", newWords)
+       setWords(words => words.concat([event.data]))
      }
 
      socket.onopen = () => socket.send(word)
    }
 
    return html`
-     <${WordStack} word=${word}/>
+     <${WordStack} words=${words}/>
      <${WordInput} onSubmit=${streamSimilarWords}/>
    `
  }
