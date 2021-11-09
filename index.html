@@ -1,5 +1,5 @@
 <script type="module">
- import { html, render, useState } from 'https://unpkg.com/htm/preact/standalone.module.js'
+ import { html, render, useState, useRef, useEffect } from 'https://unpkg.com/htm/preact/standalone.module.js'
 
  function WordStack(props) {
    return html`<ul>${props.words.map((word) => html`<li>${word}</li>`)}</ul>`
@@ -21,24 +21,37 @@
  }
 
 
+ function useBuffer(size) {
+   const [buffer, setBuffer] = useState([])
+
+   const addToBuffer = (x) => {
+     let newBuffer = buffer.concat([x])
+     if (newBuffer.length > size) {
+       newBuffer = newBuffer.slice(1)
+     }
+     setBuffer(newBuffer)
+   }
+
+   return [buffer, addToBuffer]
+ }
+
  function App(props) {
-   const [words, setWords] = useState([])
+   const [words, addWord] = useBuffer(5)
+   const ws = useRef(null)
+
+   const onMessage = (event) => {
+     addWord(event.data)
+   }
+
+   useEffect(() => {
+     if (!ws.current) { return }
+     ws.current.onmessage = onMessage
+   }, [words])
 
    function streamSimilarWords(word) {
-     let socket = new WebSocket("ws://localhost:8765")
-
-     socket.onmessage = (event) => {
-       console.log("Words:", words)
-       console.log(`[message] Data received from server: ${event.data}`)
-       const newWords = words.concat([event.data])
-       // if (newWords.length > 5) {
-       //   newWords.shift()
-       // }
-       console.log("Setting words", newWords)
-       setWords(words => words.concat([event.data]))
-     }
-
-     socket.onopen = () => socket.send(word)
+     ws.current = new WebSocket("ws://localhost:8765")
+     ws.current.onmessage = onMessage
+     ws.current.onopen = () => ws.current.send(word)
    }
 
    return html`
