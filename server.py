@@ -30,6 +30,7 @@ class WordWalkServer:
         print(f"Got seed word: {seed_word}")
         for word in self.similar_words(seed_word):
             print(f"Sending word to client: {word}")
+            await asyncio.sleep(0.5)
             await websocket.send(word)
 
 async def main():
