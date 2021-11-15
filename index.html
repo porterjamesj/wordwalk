@@ -1,8 +1,12 @@
 <script type="module">
  import { html, render, useState, useRef, useEffect } from 'https://unpkg.com/htm/preact/standalone.module.js'
 
+ const STACK_LEN = 5
+
  function WordStack(props) {
-   return html`<ul>${props.words.map((word) => html`<li>${word}</li>`)}</ul>`
+   const slots = Array(STACK_LEN - props.words.length).fill("").concat(props.words)
+
+   return html`<ul>${slots.map((text) => html`<li>${text}</li>`)}</ul>`
  }
 
  function WordInput(props) {
@@ -20,7 +24,6 @@
    `
  }
 
-
  function useBuffer(size) {
    const [buffer, setBuffer] = useState([])
 
@@ -36,7 +39,7 @@
  }
 
  function App(props) {
-   const [words, addWord] = useBuffer(5)
+   const [words, addWord] = useBuffer(STACK_LEN)
    const ws = useRef(null)
 
    const onMessage = (event) => {
@@ -49,6 +52,10 @@
    }, [words])
 
    function streamSimilarWords(word) {
+     addWord(word)
+     if (ws.current) {
+       ws.current.close(1000) // 1000 means "normal closure"
+     }
      ws.current = new WebSocket("ws://localhost:8765")
      ws.current.onmessage = onMessage
      ws.current.onopen = () => ws.current.send(word)
