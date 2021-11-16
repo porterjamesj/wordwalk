@@ -14,6 +14,7 @@
 
    function onSubmit(e) {
      e.preventDefault()
+     setWord("")
      props.onSubmit(word)
    }
 
@@ -35,15 +36,21 @@
      setBuffer(newBuffer)
    }
 
-   return [buffer, addToBuffer]
+   return [buffer, addToBuffer, setBuffer]
  }
 
  function App(props) {
-   const [words, addWord] = useBuffer(STACK_LEN)
+   const [words, addWord, setWords] = useBuffer(STACK_LEN)
    const ws = useRef(null)
 
    const onMessage = (event) => {
-     addWord(event.data)
+     const word = event.data
+     if (word == "$$ERROR$$") {
+       setWords([])
+       alert("That is not a real word")
+     } else {
+       addWord(word)
+     }
    }
 
    useEffect(() => {
@@ -52,7 +59,7 @@
    }, [words])
 
    function streamSimilarWords(word) {
-     addWord(word)
+     setWords([word])
      if (ws.current) {
        ws.current.close(1000) // 1000 means "normal closure"
      }

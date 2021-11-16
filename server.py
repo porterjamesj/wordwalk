@@ -28,6 +28,9 @@ class WordWalkServer:
     async def handler(self, websocket, path):
         seed_word = await websocket.recv()
         print(f"Got seed word: {seed_word}")
+        if seed_word not in self.words:
+            await websocket.send("$$ERROR$$")
+            return
         for word in self.similar_words(seed_word):
             print(f"Sending word to client: {word}")
             await asyncio.sleep(0.5)
