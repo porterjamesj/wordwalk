@@ -1,12 +1,49 @@
+<style type="text/css" media="screen">
+ .container {
+   display: flex;
+   height: 100%;
+   flex-direction: column;
+   justify-content: center;
+   align-items: center;
+ }
+
+ .wrapper {
+   position: relative;
+   height: 0px;
+ }
+
+ .input {
+   border: none;
+   font-size: 3em;
+   font-family: serif;
+ }
+
+ .input:focus {
+   /* outline: none; */
+ }
+
+ .word-list {
+   font-size: 3em;
+   font-family: serif;
+   position: absolute;
+   bottom: 0px;
+   padding-bottom: 0;
+   margin-bottom: 5;
+   list-style: none;
+   padding-left: 0;
+ }
+
+</style>
+
 <script type="module">
  import { html, render, useState, useRef, useEffect } from 'https://unpkg.com/htm/preact/standalone.module.js'
 
  const STACK_LEN = 5
 
  function WordStack(props) {
-   const slots = Array(STACK_LEN - props.words.length).fill("").concat(props.words)
+   const slots = Array(STACK_LEN - props.words.length).fill(" ").concat(props.words)
 
-   return html`<ul>${slots.map((text) => html`<li>${text}</li>`)}</ul>`
+   return html`<ul class="word-list">${slots.map((text) => html`<li>${text}</li>`)}</ul>`
  }
 
  function WordInput(props) {
@@ -20,7 +57,7 @@
 
    return html`
      <form onSubmit=${onSubmit}>
-       <input type="text" value=${word} onInput=${(e) => setWord(e.target.value)}/>
+       <input class="input" type="text" autofocus value=${word} onInput=${(e) => setWord(e.target.value)}/>
      </form>
    `
  }
@@ -69,8 +106,12 @@
    }
 
    return html`
-     <${WordStack} words=${words}/>
-     <${WordInput} onSubmit=${streamSimilarWords}/>
+     <div class="container">
+       <div class="wrapper">
+         <${WordStack} words=${words}/>
+         <${WordInput} onSubmit=${streamSimilarWords}/>
+       </div>
+     </div>
    `
  }
 
